@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AirDosa — AI-Powered Instant Dosa Drone Delivery</title>
+  <meta name="description" content="Piping hot, crispy South Indian dosas delivered to your balcony in under 5 minutes. AI-routed autonomous flight paths and state-of-the-art heat-locking drone technology.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* -------------------------------------------------------------
+       DESIGN SYSTEM & VARIABLES
+       ------------------------------------------------------------- */
+    :root {
+      --bg-dark: #07090e;
+      --bg-dark-accent: #0f131f;
+      --bg-card: rgba(18, 24, 38, 0.55);
+      --bg-card-hover: rgba(26, 36, 56, 0.8);
+      --color-primary: #FF5E14; /* Saffron Orange */
+      --color-primary-glow: rgba(255, 94, 20, 0.4);
+      --color-secondary: #FFB03A; /* Golden Yellow */
+      --color-accent: #2ED573; /* Mint Chutney Green */
+      --color-accent-glow: rgba(46, 213, 115, 0.3);
+      --text-main: #FFFFFF;
+      --text-muted: #A0AEC0;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(255, 94, 20, 0.15);
+      --font-headings: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* -------------------------------------------------------------
+       BASE STYLES
+       ------------------------------------------------------------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 94, 20, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(46, 213, 115, 0.04) 0%, transparent 45%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-headings);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* -------------------------------------------------------------
+       UTILITIES & GLASSMORPHISM
+       ------------------------------------------------------------- */
+    .glass {
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: var(--font-headings);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      border: none;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 20px var(--color-primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 30px rgba(255, 94, 20, 0.6);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--color-primary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(255, 255, 255, 0.05);
+    }
+
+    /* -------------------------------------------------------------
+       SCROLL ANIMATIONS (INTERSECTION OBSERVER)
+       ------------------------------------------------------------- */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .animate-on-scroll.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: 0.15s; }
+    .delay-2 { transition-delay: 0.3s; }
+    .delay-3 { transition-delay: 0.45s; }
+
+    /* -------------------------------------------------------------
+       NAVBAR
+       ------------------------------------------------------------- */
+    .navbar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 1200px;
+      z-index: 1000;
+      border-radius: 100px;
+      padding: 12px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 9, 14, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      color: var(--color-primary);
+      filter: drop-shadow(0 0 8px var(--color-primary-glow));
+      animation: floatLogo 3s ease-in-out infinite;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .logo-text span {
+      color: var(--color-primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: var(--transition-smooth);
+      position: relative;
+      padding: 5px 0;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--color-primary);
+      transition: var(--transition-smooth);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta .btn {
+      padding: 10px 22px;
+      font-size: 14px;
+    }
+
+    /* Mobile Menu Toggle */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    /* -------------------------------------------------------------
+       HERO SECTION
+       ------------------------------------------------------------- */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 140px 5% 80px 5%;
+      position: relative;
+      max-width: 1300px;
+      margin: 0 auto;
+      gap: 40px;
+    }
+
+    .hero-content {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 94, 20, 0.08);
+      border: 1px solid rgba(255, 94, 20, 0.2);
+      border-radius: 100px;
+      color: var(--color-primary);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-badge .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      box-shadow: 0 0 8px var(--color-primary);
+      animation: pulseGreen 1.5s infinite;
+    }
+
+    .hero-title {
+      font-size: 58px;
+      line-height: 1.15;
+      font-weight: 800;
+    }
+
+    .hero-tagline {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 550px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .hero-visual {
+      flex: 0.9;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-image-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 30px;
+      overflow: visible;
+      animation: floatHero 6s ease-in-out infinite;
+    }
+
+    .hero-image-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 90%;
+      height: 90%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255, 94, 20, 0.25) 0%, transparent 70%);
+      filter: blur(40px);
+      z-index: -1;
+    }
+
+    .hero-img {
+      width: 100%;
+      height: auto;
+      border-radius: 24px;
+      object-fit: cover;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Fallback Illustration when Image isn't found */
+    .hero-svg-fallback {
+      width: 100%;
+      height: auto;
+      background: var(--bg-card);
+      border-radius: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1;
+    }
+
+    /* Floating Dashboard Metrics */
+    .floating-metric {
+      position: absolute;
+      padding: 12px 18px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+      animation: microPulse 4s ease-in-out infinite;
+    }
+
+    .metric-1 {
+      top: 15%;
+      left: -10%;
+      animation-delay: 0.5s;
+    }
+
+    .metric-2 {
+      bottom: 15%;
+      right: -5%;
+      animation-delay: 2s;
+    }
+
+    .metric-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 94, 20, 0.15);
+      color: var(--color-primary);
+    }
+
+    .metric-green .metric-icon-box {
+      background: rgba(46, 213, 115, 0.15);
+      color: var(--color-accent);
+    }
+
+    .metric-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* -------------------------------------------------------------
+       FEATURES SECTION
+       ------------------------------------------------------------- */
+    .section-container {
+      padding: 100px 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-tag {
+      font-size: 13px;
+      color: var(--color-primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .section-title {
+      font-size: 38px;
+      line-height: 1.2;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      padding: 40px 30px;
+      border-radius: 24px;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 0% 0%, rgba(255, 94, 20, 0.08) 0%, transparent 60%);
+      z-index: 0;
+      transition: var(--transition-smooth);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 94, 20, 0.25);
+      box-shadow: 0 15px 40px rgba(255, 94, 20, 0.06);
+    }
+
+    .feature-card:hover::before {
+      background: radial-gradient(circle at 0% 0%, rgba(255, 94, 20, 0.15) 0%, transparent 70%);
+    }
+
+    .feature-icon-wrapper {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: rgba(255, 94, 20, 0.08);
+      border: 1px solid rgba(255, 94, 20, 0.15);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      transition: var(--transition-smooth);
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px var(--color-primary-glow);
+    }
+
+    .feature-card h3 {
+      font-size: 22px;
+      z-index: 1;
+    }
+
+    .feature-card p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      z-index: 1;
+    }
+
+    /* -------------------------------------------------------------
+       "HOW IT WORKS" VISUALIZER
+       ------------------------------------------------------------- */
+    .how-it-works {
+      background: var(--bg-dark-accent);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .steps-timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      position: relative;
+      margin-top: 40px;
+    }
+
+    .steps-timeline::after {
+      content: '';
+      position: absolute;
+      top: 35px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255, 94, 20, 0.1) 0%, rgba(255, 94, 20, 0.6) 50%, rgba(46, 213, 115, 0.4) 100%);
+      z-index: 0;
+    }
+
+    .step-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      gap: 16px;
+      cursor: pointer;
+    }
+
+    .step-num {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+      background: var(--bg-dark-accent);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition-smooth);
+    }
+
+    .step-node:hover .step-num {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 20px var(--color-primary-glow);
+      transform: scale(1.05);
+    }
+
+    .step-node.active .step-num {
+      border-color: var(--color-accent);
+      background: linear-gradient(135deg, rgba(46, 213, 115, 0.2) 0%, rgba(46, 213, 115, 0.05) 100%);
+      color: var(--color-accent);
+      box-shadow: 0 0 25px var(--color-accent-glow);
+    }
+
+    .step-info h4 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .step-node.active .step-info h4 {
+      color: var(--color-accent);
+    }
+
+    .step-info p {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 220px;
+    }
+
+    /* -------------------------------------------------------------
+       PRICING SECTION
+       ------------------------------------------------------------- */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 450px));
+      gap: 40px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .pricing-card {
+      padding: 50px 40px;
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      position: relative;
+      transition: var(--transition-smooth);
+    }
+
+    .pricing-card.popular {
+      border-color: var(--color-primary);
+      box-shadow: 0 15px 40px rgba(255, 94, 20, 0.1);
+      background: linear-gradient(180deg, rgba(18, 24, 38, 0.8) 0%, rgba(7, 9, 14, 0.95) 100%);
+    }
+
+    .pricing-card.popular::after {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #FFF;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 45px rgba(255, 94, 20, 0.12);
+    }
+
+    .price-header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .plan-name {
+      font-size: 18px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .price-value {
+      font-size: 48px;
+      font-weight: 800;
+      display: flex;
+      align-items: baseline;
+    }
+
+    .price-value span {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 5px;
+    }
+
+    .price-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .price-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 24px;
+    }
+
+    .price-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    .price-features li i {
+      color: var(--color-accent);
+      flex-shrink: 0;
+    }
+
+    .price-features li.disabled {
+      color: rgba(255, 255, 255, 0.35);
+      text-decoration: line-through;
+    }
+
+    .price-features li.disabled i {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .pricing-card .btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    /* -------------------------------------------------------------
+       FOOTER
+       ------------------------------------------------------------- */
+    .footer {
+      background: #040508;
+      border-top: 1px solid var(--border-color);
+      padding: 80px 5% 40px 5%;
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto 60px auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr;
+      gap: 60px;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .footer-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 360px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .social-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: var(--transition-smooth);
+    }
+
+    .social-btn:hover {
+      background: var(--color-primary);
+      color: #FFF;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px var(--color-primary-glow);
+    }
+
+    .footer-links h4 {
+      font-size: 16px;
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-nav a {
+      font-size: 14px;
+      color: var(--text-muted);
+      transition: var(--transition-smooth);
+    }
+
+    .footer-nav a:hover {
+      color: var(--text-main);
+      padding-left: 5px;
+    }
+
+    .footer-subscribe h4 {
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .subscribe-p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .subscribe-form {
+      display: flex;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 50px;
+      padding: 5px;
+      width: 100%;
+    }
+
+    .subscribe-form:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 15px rgba(255, 94, 20, 0.15);
+    }
+
+    .subscribe-input {
+      background: none;
+      border: none;
+      outline: none;
+      padding: 10px 20px;
+      color: var(--text-main);
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .subscribe-form .btn {
+      padding: 8px 18px;
+      font-size: 13px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-bottom span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* -------------------------------------------------------------
+       FLOATING & BOUNCING ORDER NOW FAB
+       ------------------------------------------------------------- */
+    .fab-order {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      color: #FFFFFF;
+      padding: 15px 25px;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(255, 94, 20, 0.45);
+      cursor: pointer;
+      font-family: var(--font-headings);
+      font-weight: 700;
+      border: none;
+      animation: fabBounce 2s infinite ease-in-out;
+      transition: var(--transition-smooth);
+    }
+
+    .fab-order:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(255, 94, 20, 0.6);
+      animation: none; /* Pause bounce on hover */
+    }
+
+    .fab-order i {
+      animation: spinDrone 4s linear infinite;
+    }
+
+    /* -------------------------------------------------------------
+       INTERACTIVE DELIVERY SIMULATOR MODAL
+       ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(4, 5, 8, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition-smooth);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: 90%;
+      max-width: 500px;
+      padding: 40px;
+      border-radius: 28px;
+      text-align: center;
+      position: relative;
+      transform: scale(0.9);
+      transition: var(--transition-smooth);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .modal-close:hover {
+      color: #FFF;
+      background: rgba(255, 94, 20, 0.2);
+      border-color: var(--color-primary);
+    }
+
+    .modal-title {
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+
+    .modal-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 25px;
+    }
+
+    .menu-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .menu-item {
+      padding: 16px 10px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .menu-item.selected {
+      border-color: var(--color-primary);
+      background: rgba(255, 94, 20, 0.08);
+    }
+
+    .menu-item span {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .dosa-icon-visual {
+      font-size: 24px;
+    }
+
+    .simulator-stage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .simulator-stage.active {
+      display: flex;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+      transition: width 3.5s linear;
+      border-radius: 10px;
+    }
+
+    .sim-status {
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .sim-animation-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sim-drone {
+      font-size: 40px;
+      color: var(--color-primary);
+      animation: droneHoverSim 2s ease-in-out infinite;
+    }
+
+    .sim-success-icon {
+      font-size: 50px;
+      color: var(--color-accent);
+      animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* -------------------------------------------------------------
+       ANIMATION KEYFRAMES
+       ------------------------------------------------------------- */
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(8deg); }
+    }
+
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(255, 94, 20, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(255, 94, 20, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 94, 20, 0); }
+    }
+
+    @keyframes floatHero {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(-1.5deg); }
+    }
+
+    @keyframes microPulse {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes fabBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes spinDrone {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes droneHoverSim {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-12px) rotate(3deg); }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* -------------------------------------------------------------
+       RESPONSIVE DESIGN (MEDIA QUERIES)
+       ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .navbar {
+        width: 95%;
+        padding: 10px 20px;
+      }
+      .hero {
+        flex-direction: column-reverse;
+        padding-top: 140px;
+        text-align: center;
+        gap: 60px;
+      }
+      .hero-content {
+        align-items: center;
+      }
+      .hero-title {
+        font-size: 46px;
+      }
+      .hero-tagline {
+        max-width: 100%;
+      }
+      .hero-actions {
+        justify-content: center;
+      }
+      .steps-timeline {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .steps-timeline::after {
+        display: none;
+      }
+      .step-info p {
+        max-width: 100%;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: rgba(7, 9, 14, 0.95);
+        border: 1px solid var(--border-color);
+        padding: 30px;
+        border-radius: 20px;
+        align-items: center;
+      }
+      .nav-links.active {
+        display: flex;
+      }
+      .nav-cta {
+        display: none;
+      }
+      .hero-title {
+        font-size: 36px;
+      }
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      .hero-actions .btn {
+        width: 100%;
+      }
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .floating-metric {
+        display: none; /* Hide floating metrics on small mobile devices to save space */
+      }
+      .fab-order {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLOATING ORDER NOW FAB -->
+  <button class="fab-order" onclick="openOrderModal()">
+    <i data-lucide="navigation"></i> Order Now
+  </button>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo-container">
+      <i data-lucide="send" class="logo-icon"></i>
+      <div class="logo-text">Air<span>Dosa</span></div>
+    </div>
+    
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features" onclick="toggleMenu()">Features</a></li>
+      <li><a href="#how-it-works" onclick="toggleMenu()">How It Works</a></li>
+      <li><a href="#pricing" onclick="toggleMenu()">Pricing</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <button class="btn btn-primary" onclick="openOrderModal()">Get Landing Code</button>
+    </div>
+
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle Menu">
+      <i data-lucide="menu" id="menuIcon"></i>
+    </button>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <header class="hero">
+    <div class="hero-content animate-on-scroll">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        AIRBORNE TECH &bull; READY IN 5 MIN
+      </div>
+      <h1 class="hero-title">
+        Piping Hot, Crispy Dosas. <br>
+        <span class="text-gradient">Delivered from the Clouds.</span>
+      </h1>
+      <p class="hero-tagline">
+        Meet India’s first AI-powered autonomous drone delivery service. Engineered with CrispGuard™ thermal technology, our custom-griddled batter dispenser cooks perfectly in the sky and soft-lands right onto your balcony in under 300 seconds.
+      </p>
+      
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="openOrderModal()">
+          Order Instantly <i data-lucide="zap"></i>
+        </button>
+        <a href="#how-it-works" class="btn btn-secondary">
+          Track Live Flight <i data-lucide="map-pin"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-visual animate-on-scroll delay-2">
+      <!-- Floating dashboards -->
+      <div class="floating-metric metric-1 glass">
+        <div class="metric-icon-box">
+          <i data-lucide="thermometer"></i>
+        </div>
+        <div>
+          <div class="metric-title">Chamber Temp</div>
+          <div class="metric-value">75.4 °C</div>
+        </div>
+      </div>
+
+      <div class="floating-metric metric-2 glass metric-green">
+        <div class="metric-icon-box">
+          <i data-lucide="wind"></i>
+        </div>
+        <div>
+          <div class="metric-title">Crisp Guard</div>
+          <div class="metric-value">Active 100%</div>
+        </div>
+      </div>
+
+      <div class="hero-image-wrapper">
+        <!-- Renders generated image with SVG fallback on error -->
+        <img 
+          class="hero-img" 
+          src="dosa_drone_hero.png" 
+          alt="Futuristic AirDosa drone delivering delicious hot South Indian dosa"
+          onerror="this.style.display='none'; document.getElementById('svgFallback').style.display='flex';"
+        >
+        
+        <!-- SVG Drone Fallback Artwork -->
+        <div id="svgFallback" class="hero-svg-fallback" style="display:none;">
+          <svg width="220" height="220" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-primary); filter: drop-shadow(0 0 20px var(--color-primary-glow));">
+            <path d="M12 2v20M2 12h20"/>
+            <circle cx="12" cy="12" r="6" fill="rgba(255, 94, 20, 0.05)" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 9c-1.66 0-3 1.34-3 3s1.34 3 3 3s3-1.34 3-3s-1.34-3-3-3z" fill="currentColor"/>
+            <path d="M18 6l3-3M6 18L3 21M6 6L3 3M18 18l3 3" stroke-width="2"/>
+            <circle cx="3" cy="3" r="1.5" fill="currentColor"/>
+            <circle cx="21" cy="3" r="1.5" fill="currentColor"/>
+            <circle cx="3" cy="21" r="1.5" fill="currentColor"/>
+            <circle cx="21" cy="21" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- FEATURES SECTION -->
+  <section class="section-container" id="features">
+    <div class="section-header animate-on-scroll">
+      <span class="section-tag">High-Tech Dining</span>
+      <h2 class="section-title text-gradient">Why Choose AirDosa?</h2>
+      <p class="section-desc">We integrated deep aerospace engineering with ancient secret batter recipes to reinvent breakfast, lunch, and dinner.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Card 1 -->
+      <div class="feature-card glass glass-hover animate-on-scroll delay-1">
+        <div class="feature-icon-wrapper">
+          <i data-lucide="flame"></i>
+        </div>
+        <h3>CrispGuard™ Capsule</h3>
+        <p>Our custom carbon-fiber drone compartments keep steam from locking in while continuously venting moisture. Result? A perfectly golden, crackling dosa upon soft landing.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card glass glass-hover animate-on-scroll delay-2">
+        <div class="feature-icon-wrapper">
+          <i data-lucide="cpu"></i>
+        </div>
+        <h3>AI Obstacle Avoidance</h3>
+        <p>Powered by active LiDAR and high-speed edge computing, our drones effortlessly glide around street-side kites, overhead electrical lines, and high-rise apartments in real-time.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card glass glass-hover animate-on-scroll delay-3">
+        <div class="feature-icon-wrapper">
+          <i data-lucide="zap"></i>
+        </div>
+        <h3>Robo-Griddle Launchpads</h3>
+        <p>Our automated hyper-local micro-kitchens disperse perfectly fermented batter, sear the crepe to absolute crispness, apply ghee, pack chutneys, and launch in 45 seconds.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- "HOW IT WORKS" VISUALIZER -->
+  <section class="section-container how-it-works" id="how-it-works" style="max-width: 100%; border-left: none; border-right: none;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div class="section-header animate-on-scroll">
+        <span class="section-tag">Supersonic Simplicity</span>
+        <h2 class="section-title text-gradient">How AirDosa Works</h2>
+        <p class="section-desc">From your screen to your stomach in four elegant, high-speed phases.</p>
+      </div>
+
+      <div class="steps-timeline">
+        <!-- Step 1 -->
+        <div class="step-node active" id="step1" onclick="showStep(1)">
+          <div class="step-num">01</div>
+          <div class="step-info">
+            <h4>Batter Specs</h4>
+            <p>Customize your dosa thickness, crispy level, and toppings inside our interactive mobile app.</p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-node" id="step2" onclick="showStep(2)">
+          <div class="step-num">02</div>
+          <div class="step-info">
+            <h4>Robo-Bake</h4>
+            <p>Micro-griddles instantly pour, spread, and fry your customized recipe using high-accuracy temperature sensors.</p>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-node" id="step3" onclick="showStep(3)">
+          <div class="step-num">03</div>
+          <div class="step-info">
+            <h4>Supersonic Jet</h4>
+            <p>The drone launches autonomously into the sky, charting a hyper-optimized 3D route to avoid traffic corridors.</p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-node" id="step4" onclick="showStep(4)">
+          <div class="step-num">04</div>
+          <div class="step-info">
+            <h4>Balcony Drop</h4>
+            <p>A smart winched tether descends directly to your balcony coordinates for a touchless, safe landing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING SECTION -->
+  <section class="section-container" id="pricing">
+    <div class="section-header animate-on-scroll">
+      <span class="section-tag">Subscriptions</span>
+      <h2 class="section-title text-gradient">Choose Your Flying Feast</h2>
+      <p class="section-desc">Flexible plans tailored for occasional dosa brunchers and diehard South Indian food enthusiasts alike.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Plan 1 -->
+      <div class="pricing-card glass animate-on-scroll delay-1">
+        <div class="price-header">
+          <div class="plan-name">Dosa Lite</div>
+          <div class="price-value">₹149 <span>/ order</span></div>
+          <p class="price-desc">Perfect for satisfying casual weekend morning cravings.</p>
+        </div>
+        
+        <ul class="price-features">
+          <li><i data-lucide="check-circle-2"></i> Standard 10-Minute Delivery</li>
+          <li><i data-lucide="check-circle-2"></i> Steaming Sambar & Organic Chutneys</li>
+          <li><i data-lucide="check-circle-2"></i> Real-time Drone Flight Tracking</li>
+          <li class="disabled"><i data-lucide="x-circle"></i> Priority Express Corridor access</li>
+          <li class="disabled"><i data-lucide="x-circle"></i> Artisanal Batters (Rava, Ragi, Quinoa)</li>
+          <li class="disabled"><i data-lucide="x-circle"></i> Live On-Drone Cockpit Feed</li>
+        </ul>
+
+        <button class="btn btn-secondary" onclick="openOrderModal()">Order Single Dosa</button>
+      </div>
+
+      <!-- Plan 2 -->
+      <div class="pricing-card glass popular animate-on-scroll delay-2">
+        <div class="price-header">
+          <div class="plan-name">Dosa Gold</div>
+          <div class="price-value">₹499 <span>/ month</span></div>
+          <p class="price-desc">For ultimate enthusiasts demanding priority speed & elite recipes.</p>
+        </div>
+        
+        <ul class="price-features">
+          <li><i data-lucide="check-circle-2"></i> <strong>Free Unlimited Deliveries</strong></li>
+          <li><i data-lucide="check-circle-2"></i> 5-Min Priority Express Corridors</li>
+          <li><i data-lucide="check-circle-2"></i> Elite Batters (Ragi, Cheese Masala, Butter Rava)</li>
+          <li><i data-lucide="check-circle-2"></i> Premium Double Chutney Assortment</li>
+          <li><i data-lucide="check-circle-2"></i> Zero Delivery Surge Surcharges</li>
+          <li><i data-lucide="check-circle-2"></i> Live 4K On-Drone Cockpit Cam Feed</li>
+        </ul>
+
+        <button class="btn btn-primary" onclick="openOrderModal('PRO')">Get Dosa Gold Membership</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-container">
+          <i data-lucide="send" class="logo-icon"></i>
+          <div class="logo-text">Air<span>Dosa</span></div>
+        </div>
+        <p class="footer-desc">Reimagining South Indian cuisine through next-generation aerospace technology and precision AI recipe algorithms.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+          <a href="#" class="social-btn" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+          <a href="#" class="social-btn" aria-label="Youtube"><i data-lucide="youtube"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <h4>Navigation</h4>
+        <ul class="footer-nav">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#pricing">Pricing Plans</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-subscribe">
+        <h4>Balcony Alerts</h4>
+        <p class="subscribe-p">Subscribe to get live notifications of airspace openings and special weekend menu additions.</p>
+        <form class="subscribe-form" onsubmit="event.preventDefault(); alert('Subscribed to AirDosa Alerts!');">
+          <input type="email" class="subscribe-input" placeholder="Enter your email" required>
+          <button type="submit" class="btn btn-primary">Join</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 AirDosa Technologies Private Limited. All rights reserved.</p>
+      <span>Made with <i data-lucide="heart" style="color:var(--color-primary); fill:var(--color-primary); width:14px; height:14px;"></i> & Drones in India</span>
+    </div>
+  </footer>
+
+  <!-- INTERACTIVE ORDER MODAL -->
+  <div class="modal-overlay" id="orderModal" onclick="closeOrderModal(event)">
+    <div class="modal-card glass" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeOrderModal()"><i data-lucide="x"></i></button>
+      
+      <!-- Stage 1: Selection -->
+      <div id="modalStage1" class="simulator-stage active">
+        <h3 class="modal-title">Customize Your Dosa</h3>
+        <p class="modal-desc">Select a premium recipe and our automated griddles will cook it instantly in the sky!</p>
+        
+        <div class="menu-options">
+          <div class="menu-item selected" onclick="selectMenuItem(this, 'Ghee Roast')">
+            <span class="dosa-icon-visual">🫓</span>
+            <span>Ghee Roast</span>
+          </div>
+          <div class="menu-item" onclick="selectMenuItem(this, 'Mysore Masala')">
+            <span class="dosa-icon-visual">🌶️</span>
+            <span>Mysore Masala</span>
+          </div>
+          <div class="menu-item" onclick="selectMenuItem(this, 'Cheese Burst')">
+            <span class="dosa-icon-visual">🧀</span>
+            <span>Cheese Burst</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;" onclick="launchDroneSimulator()">
+          Launch Delivery Drone <i data-lucide="rocket"></i>
+        </button>
+      </div>
+
+      <!-- Stage 2: Live Flight Simulation -->
+      <div id="modalStage2" class="simulator-stage">
+        <h3 class="modal-title">Drone Takeoff Active</h3>
+        <p class="modal-desc">Real-time telemetry from Drone #AD-402 heading to your balcony.</p>
+        
+        <div class="sim-animation-container">
+          <i data-lucide="send" class="sim-drone"></i>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="simProgress"></div>
+        </div>
+        
+        <div class="sim-status text-gradient" id="simStatus">Prepping Smart Griddle...</div>
+      </div>
+
+      <!-- Stage 3: Arrived -->
+      <div id="modalStage3" class="simulator-stage">
+        <h3 class="modal-title text-gradient">Dosa Soft-Landed!</h3>
+        <p class="modal-desc">Your hot, crisp Dosa has successfully landed on your balcony via precision winch lines.</p>
+        
+        <div class="sim-animation-container">
+          <i data-lucide="check-circle" class="sim-success-icon"></i>
+        </div>
+
+        <div class="sim-status" style="color:var(--color-accent);">Enjoy your piping-hot meal! 😋</div>
+        <button class="btn btn-secondary" style="width:100%; margin-top:20px;" onclick="closeOrderModal()">Awesome</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT FOR DYNAMIC INTERACTIONS -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Mobile Navbar Menu Toggle
+    function toggleMenu() {
+      const navLinks = document.getElementById('navLinks');
+      const menuIcon = document.getElementById('menuIcon');
+      navLinks.classList.toggle('active');
+      
+      if (navLinks.classList.contains('active')) {
+        menuIcon.setAttribute('data-lucide', 'x');
+      } else {
+        menuIcon.setAttribute('data-lucide', 'menu');
+      }
+      lucide.createIcons();
+    }
+
+    // Interactive How It Works Steps
+    let currentStep = 1;
+    function showStep(stepNum) {
+      document.querySelectorAll('.step-node').forEach(node => {
+        node.classList.remove('active');
+      });
+      document.getElementById('step' + stepNum).classList.add('active');
+    }
+
+    // Auto-scroll steps loop
+    setInterval(() => {
+      currentStep = (currentStep % 4) + 1;
+      showStep(currentStep);
+    }, 4500);
+
+    // Modal Control Functions
+    const modal = document.getElementById('orderModal');
+    let selectedDosa = 'Ghee Roast';
+
+    function openOrderModal(plan = 'LITE') {
+      modal.classList.add('active');
+      // Reset stages
+      document.getElementById('modalStage1').classList.add('active');
+      document.getElementById('modalStage2').classList.remove('active');
+      document.getElementById('modalStage3').classList.remove('active');
+      
+      const progressFill = document.getElementById('simProgress');
+      progressFill.style.transition = 'none';
+      progressFill.style.width = '0%';
+    }
+
+    function closeOrderModal(event) {
+      modal.classList.remove('active');
+    }
+
+    function selectMenuItem(element, name) {
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      element.classList.add('selected');
+      selectedDosa = name;
+    }
+
+    function launchDroneSimulator() {
+      // Transition to Stage 2 (Simulation)
+      document.getElementById('modalStage1').classList.remove('active');
+      document.getElementById('modalStage2').classList.add('active');
+
+      const statusEl = document.getElementById('simStatus');
+      const progressFill = document.getElementById('simProgress');
+      
+      // Animate progress bar (total time 8 seconds)
+      setTimeout(() => {
+        progressFill.style.transition = 'width 8s linear';
+        progressFill.style.width = '100%';
+      }, 50);
+
+      // Simulation Stage Telemetry Logs
+      const logs = [
+        { time: 0, text: "Dispensing fresh batter & cooking... 🫓" },
+        { time: 1800, text: "Wrapping crispy Dosa in CrispGuard™... 🔒" },
+        { time: 3500, text: "Takeoff! AI Route Planner engaged... 🚀" },
+        { time: 5500, text: "Cruising speed 85 km/h. Windspeed stable... 🛸" },
+        { time: 7000, text: "Balcony coordinates locked. Winch descending... 📍" },
+        { time: 8200, text: "Landed! Delicious crispy meal arrived! 🎉" }
+      ];
+
+      logs.forEach(log => {
+        setTimeout(() => {
+          statusEl.innerText = log.text;
+          if(log.text.includes("Landed")) {
+            // Transition to Stage 3 (Success)
+            document.getElementById('modalStage2').classList.remove('active');
+            document.getElementById('modalStage3').classList.add('active');
+          }
+        }, log.time);
+      });
+    }
+
+    // Intersection Observer for Smooth Scroll Reveal
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.12
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target); // Trigger only once
+        }
+      });
+    }, observerOptions);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+      });
+    });
+  </script>
+</body>
+</html>
